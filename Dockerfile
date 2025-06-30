@@ -21,3 +21,4 @@ ENV NODE_ENV=production
 
 # Commande de démarrage
 CMD ["npm", "start"]
+CMD ["npm", "start2"]
