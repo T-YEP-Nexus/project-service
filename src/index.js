@@ -16,10 +16,10 @@ app.use(express.json());
 const projectRoutes = require('./routes/project.js');
 const projectStudentRoutes = require('./routes/project-student.js');
 
-app.use('/project', projectRoutes);
-app.use('/project_student', projectStudentRoutes);
+app.use('', projectRoutes);
+app.use('', projectStudentRoutes);
 
 const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré et à l'écoute sur le port ${PORT}`);
+  console.log(`Serveur démarré et à l'écoute sur le port ${PORT}`);
 });
