@@ -282,15 +282,6 @@ router.patch('/projects/:id', async (req, res) => {
     const { id } = req.params;
     const { name, description, ressources, is_active } = req.body;
 
-    // Validate project ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project ID provided'
-      });
-    }
-
     // Check if at least one field is provided
     if (!name && !description && ressources === undefined && is_active === undefined) {
       return res.status(400).json({
@@ -466,15 +457,6 @@ router.delete('/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate project ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project ID provided'
-      });
-    }
-
     // Check if project exists before deletion
     const { data: existingProject, error: checkError } = await supabase
       .from('project')
@@ -535,15 +517,6 @@ router.get('/projects/:id/resources', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project ID provided'
-      });
-    }
-
     const { data, error } = await supabase
       .from('project')
       .select('ressources, name')
@@ -591,15 +564,6 @@ router.post('/projects/:id/resources', async (req, res) => {
   try {
     const { id } = req.params;
     const { filename, url, description } = req.body;
-
-    // Validate project ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project ID provided'
-      });
-    }
 
     // Validate resource data
     if (!filename || !url) {
@@ -709,15 +673,6 @@ router.delete('/projects/:id/resources/:filename', async (req, res) => {
   try {
     const { id, filename } = req.params;
 
-    // Validate project ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project ID provided'
-      });
-    }
-
     if (!filename) {
       return res.status(400).json({
         success: false,
@@ -801,14 +756,6 @@ router.patch('/projects/:id/toggle-active', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate project ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project ID provided'
-      });
-    }
 
     // Get current project status
     const { data: currentProject, error: getCurrentError } = await supabase
