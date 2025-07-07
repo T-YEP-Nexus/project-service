@@ -96,12 +96,11 @@ router.get('/project-students/student/:id_student', async (req, res) => {
   try {
     const { id_student } = req.params;
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id_student || !uuidRegex.test(id_student)) {
+    // Validate that student ID is provided
+    if (!id_student) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid student ID provided'
+        message: 'Student ID is required'
       });
     }
 
@@ -142,12 +141,11 @@ router.get('/project-students/project/:id_project', async (req, res) => {
   try {
     const { id_project } = req.params;
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id_project || !uuidRegex.test(id_project)) {
+    // Validate that project ID is provided
+    if (!id_project) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid project ID provided'
+        message: 'Project ID is required'
       });
     }
 

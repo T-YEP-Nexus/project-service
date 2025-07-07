@@ -44,12 +44,11 @@ router.get('/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
+    // Validate that ID is provided
+    if (!id) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid project ID provided'
+        message: 'Project ID is required'
       });
     }
 
@@ -96,12 +95,11 @@ router.get('/projects/creator/:id_creator', async (req, res) => {
   try {
     const { id_creator } = req.params;
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id_creator || !uuidRegex.test(id_creator)) {
+    // Validate that creator ID is provided
+    if (!id_creator) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid creator ID provided'
+        message: 'Creator ID is required'
       });
     }
 
