@@ -1,6 +1,3 @@
-//  import projectRoutes from "../routes/project.js";
-//  import projectStudentRoutes from "../routes/project-student.js";
-
 require('dotenv').config();
 
 const express = require('express');
