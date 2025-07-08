@@ -1,5 +1,3 @@
-// CRUD routes for the 'project_student' table
-
 const express = require('express');
 const router = express.Router();
 const supabase = require('../../config/supabaseClient.js');
@@ -43,15 +41,6 @@ router.get('/project-students', async (req, res) => {
 router.get('/project-students/:id', async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project assignment ID provided'
-      });
-    }
 
     const { data, error } = await supabase
       .from('project_student')
@@ -111,10 +100,17 @@ router.get('/project-students/student/:id_student', async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching project assignments by student:', error);
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({
+          success: false,
+          message: 'Student id not found'
+        });
+      }
+
+      console.error('Error fetching project student by student id:', error);
       return res.status(500).json({
         success: false,
-        message: 'Failed to fetch project assignments',
+        message: 'Failed to fetch project student',
         error: error.message
       });
     }
@@ -251,13 +247,6 @@ router.post('/project-students', async (req, res) => {
       });
     }
 
-    if (!uuidRegex.test(id_project)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid project ID format'
-      });
-    }
-
     // Validate dates if provided
     if (due_date && isNaN(Date.parse(due_date))) {
       return res.status(400).json({
@@ -371,15 +360,6 @@ router.patch('/project-students/:id', async (req, res) => {
       score, 
       max_score 
     } = req.body;
-
-    // Validate assignment ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid assignment ID provided'
-      });
-    }
 
     // Check if at least one field is provided
     if (due_date === undefined && 
@@ -510,15 +490,6 @@ router.delete('/project-students/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate assignment ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid assignment ID provided'
-      });
-    }
-
     // Check if assignment exists before deletion
     const { data: existingAssignment, error: checkError } = await supabase
       .from('project_student')
@@ -579,15 +550,6 @@ router.patch('/project-students/:id/grade', async (req, res) => {
   try {
     const { id } = req.params;
     const { score, max_score, advisor_comment } = req.body;
-
-    // Validate assignment ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!id || !uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid assignment ID provided'
-      });
-    }
 
     // Validation
     if (score === undefined && max_score === undefined) {
