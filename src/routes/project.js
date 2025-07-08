@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../../config/supabaseClient.js');
 
-
-// CRUD routes for the 'project' table
-
 // Get all projects
 router.get('/projects', async (req, res) => {
   try {
@@ -197,12 +194,12 @@ router.post('/projects', async (req, res) => {
       });
     }
 
-    if (!Array.isArray(ressources) || ressources.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Ressources must be a non-empty array of PDF files'
-      });
-    }
+    // if (!Array.isArray(ressources) || ressources.length === 0) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'Ressources must be a non-empty array of PDF files'
+    //   });
+    // }
 
     // Validate creator ID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
