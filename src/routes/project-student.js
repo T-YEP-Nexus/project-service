@@ -2,8 +2,27 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../../config/supabaseClient.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: ProjectStudents
+ *   description: API for managing project-student assignments
+ */
 
 // Get all project assignments
+
+/**
+ * @swagger
+ * /project-students:
+ *   get:
+ *     summary: Get all project-student assignments
+ *     tags: [ProjectStudents]
+ *     responses:
+ *       200:
+ *         description: Project assignments retrieved successfully
+ *       500:
+ *         description: Server error
+ */
 router.get('/project-students', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -38,6 +57,27 @@ router.get('/project-students', async (req, res) => {
 });
 
 // Get a project assignment by id
+/**
+ * @swagger
+ * /project-students/{id}:
+ *   get:
+ *     summary: Get a specific project assignment by ID
+ *     tags: [ProjectStudents]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project-student assignment ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Project assignment retrieved successfully
+ *       404:
+ *         description: Assignment not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/project-students/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -81,6 +121,29 @@ router.get('/project-students/:id', async (req, res) => {
 });
 
 // Get project assignments by student ID
+/**
+ * @swagger
+ * /project-students/student/{id_student}:
+ *   get:
+ *     summary: Get all project assignments for a specific student
+ *     tags: [ProjectStudents]
+ *     parameters:
+ *       - name: id_student
+ *         in: path
+ *         required: true
+ *         description: Student ID (UUID)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Assignments retrieved successfully
+ *       400:
+ *         description: Student ID is required
+ *       404:
+ *         description: Student ID not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/project-students/student/:id_student', async (req, res) => {
   try {
     const { id_student } = req.params;
@@ -133,6 +196,27 @@ router.get('/project-students/student/:id_student', async (req, res) => {
 });
 
 // Get project assignments by project ID
+/**
+ * @swagger
+ * /project-students/project/{id_project}:
+ *   get:
+ *     summary: Get all project assignments for a specific project
+ *     tags: [ProjectStudents]
+ *     parameters:
+ *       - name: id_project
+ *         in: path
+ *         required: true
+ *         description: Project ID (UUID)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Assignments retrieved successfully
+ *       400:
+ *         description: Project ID is required
+ *       500:
+ *         description: Server error
+ */
 router.get('/project-students/project/:id_project', async (req, res) => {
   try {
     const { id_project } = req.params;
@@ -178,6 +262,18 @@ router.get('/project-students/project/:id_project', async (req, res) => {
 });
 
 // Get assignments with upcoming due dates (next 7 days)
+/**
+ * @swagger
+ * /project-students/due-soon/list:
+ *   get:
+ *     summary: Get project assignments with due dates within the next 7 days
+ *     tags: [ProjectStudents]
+ *     responses:
+ *       200:
+ *         description: Assignments retrieved successfully
+ *       500:
+ *         description: Server error
+ */
 router.get('/project-students/due-soon/list', async (req, res) => {
   try {
     const nextWeek = new Date();
@@ -218,6 +314,48 @@ router.get('/project-students/due-soon/list', async (req, res) => {
 });
 
 // Create a new project assignment
+/**
+ * @swagger
+ * /project-students:
+ *   post:
+ *     summary: Create a new project-student assignment
+ *     tags: [ProjectStudents]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id_student
+ *               - id_project
+ *             properties:
+ *               id_student:
+ *                 type: string
+ *               id_project:
+ *                 type: string
+ *               due_date:
+ *                 type: string
+ *                 format: date-time
+ *               assigned_at:
+ *                 type: string
+ *                 format: date-time
+ *               advisor_comment:
+ *                 type: string
+ *               score:
+ *                 type: number
+ *               max_score:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Assignment created successfully
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: Assignment already exists
+ *       500:
+ *         description: Server error
+ */
 router.post('/project-students', async (req, res) => {
   try {
     const { 
@@ -350,6 +488,47 @@ router.post('/project-students', async (req, res) => {
 });
 
 // Update a project assignment
+/**
+ * @swagger
+ * /project-students/{id}:
+ *   patch:
+ *     summary: Update a project assignment
+ *     tags: [ProjectStudents]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Assignment ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               due_date:
+ *                 type: string
+ *                 format: date-time
+ *               assigned_at:
+ *                 type: string
+ *                 format: date-time
+ *               advisor_comment:
+ *                 type: string
+ *               score:
+ *                 type: number
+ *               max_score:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Assignment updated successfully
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Assignment not found
+ *       500:
+ *         description: Server error
+ */
 router.patch('/project-students/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -486,6 +665,27 @@ router.patch('/project-students/:id', async (req, res) => {
 });
 
 // Delete a project assignment
+/**
+ * @swagger
+ * /project-students/{id}:
+ *   delete:
+ *     summary: Delete a project assignment
+ *     tags: [ProjectStudents]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Assignment ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Assignment deleted successfully
+ *       404:
+ *         description: Assignment not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/project-students/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -546,6 +746,41 @@ router.delete('/project-students/:id', async (req, res) => {
 });
 
 // Grade a project assignment (specific endpoint for scoring)
+/**
+ * @swagger
+ * /project-students/{id}/grade:
+ *   patch:
+ *     summary: Grade a project assignment
+ *     tags: [ProjectStudents]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Assignment ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               score:
+ *                 type: number
+ *               max_score:
+ *                 type: number
+ *               advisor_comment:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Assignment graded successfully
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Assignment not found
+ *       500:
+ *         description: Server error
+ */
 router.patch('/project-students/:id/grade', async (req, res) => {
   try {
     const { id } = req.params;

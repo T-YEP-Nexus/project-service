@@ -2,7 +2,26 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../../config/supabaseClient.js');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Projects
+ *   description: Project management endpoints
+ */
+
 // Get all projects
+/**
+ * @swagger
+ * /projects:
+ *   get:
+ *     summary: Get all projects
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: Projects retrieved successfully
+ *       500:
+ *         description: Server error
+ */
 router.get('/projects', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -37,6 +56,27 @@ router.get('/projects', async (req, res) => {
 });
 
 // Get a project by id
+/**
+ * @swagger
+ * /projects/{id}:
+ *   get:
+ *     summary: Get a project by ID
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Project retrieved successfully
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -88,6 +128,25 @@ router.get('/projects/:id', async (req, res) => {
 });
 
 // Get projects by creator ID
+/**
+ * @swagger
+ * /projects/creator/{id_creator}:
+ *   get:
+ *     summary: Get projects by creator ID
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id_creator
+ *         in: path
+ *         required: true
+ *         description: Creator ID (UUID)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Projects retrieved successfully
+ *       500:
+ *         description: Server error
+ */
 router.get('/projects/creator/:id_creator', async (req, res) => {
   try {
     const { id_creator } = req.params;
@@ -133,6 +192,18 @@ router.get('/projects/creator/:id_creator', async (req, res) => {
 });
 
 // Get active projects only
+/**
+ * @swagger
+ * /projects/active/list:
+ *   get:
+ *     summary: Get all active projects
+ *     tags: [Projects]
+ *     responses:
+ *       200:
+ *         description: Active projects retrieved successfully
+ *       500:
+ *         description: Server error
+ */
 router.get('/projects/active/list', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -168,6 +239,46 @@ router.get('/projects/active/list', async (req, res) => {
 });
 
 // Create a new project
+/**
+ * @swagger
+ * /projects:
+ *   post:
+ *     summary: Create a new project
+ *     tags: [Projects]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - description
+ *               - ressources
+ *               - id_creator
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               ressources:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *               id_creator:
+ *                 type: string
+ *               is_active:
+ *                 type: boolean
+ *     responses:
+ *       201:
+ *         description: Project created successfully
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: Duplicate project name
+ *       500:
+ *         description: Server error
+ */
 router.post('/projects', async (req, res) => {
   try {
     const { name, description, ressources, is_active, id_creator } = req.body;
@@ -274,6 +385,48 @@ router.post('/projects', async (req, res) => {
 });
 
 // Update a project
+/**
+ * @swagger
+ * /projects/{id}:
+ *   patch:
+ *     summary: Update a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               ressources:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *               is_active:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Project not found
+ *       409:
+ *         description: Duplicate project name
+ *       500:
+ *         description: Server error
+ */
 router.patch('/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -450,6 +603,27 @@ router.patch('/projects/:id', async (req, res) => {
 });
 
 // Delete a project
+/**
+ * @swagger
+ * /projects/{id}:
+ *   delete:
+ *     summary: Delete a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Project deleted successfully
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -510,6 +684,27 @@ router.delete('/projects/:id', async (req, res) => {
 });
 
 // Get project resources (PDF files)
+/**
+ * @swagger
+ * /projects/{id}/resources:
+ *   get:
+ *     summary: Get project resources
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Project resources retrieved successfully
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/projects/:id/resources', async (req, res) => {
   try {
     const { id } = req.params;
@@ -557,6 +752,45 @@ router.get('/projects/:id/resources', async (req, res) => {
 });
 
 // Add a resource to a project
+/**
+ * @swagger
+ * /projects/{id}/resources:
+ *   post:
+ *     summary: Add a resource to a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - filename
+ *               - url
+ *             properties:
+ *               filename:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Resource added successfully
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: Resource already exists
+ *       500:
+ *         description: Server error
+ */
 router.post('/projects/:id/resources', async (req, res) => {
   try {
     const { id } = req.params;
@@ -666,6 +900,33 @@ router.post('/projects/:id/resources', async (req, res) => {
 });
 
 // Remove a resource from a project
+/**
+ * @swagger
+ * /projects/{id}/resources/{filename}:
+ *   delete:
+ *     summary: Remove a resource from a project
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project ID
+ *         schema:
+ *           type: string
+ *       - name: filename
+ *         in: path
+ *         required: true
+ *         description: PDF filename to remove
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Resource removed successfully
+ *       404:
+ *         description: Project or resource not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/projects/:id/resources/:filename', async (req, res) => {
   try {
     const { id, filename } = req.params;
@@ -748,7 +1009,28 @@ router.delete('/projects/:id/resources/:filename', async (req, res) => {
   }
 });
 
-// Put a projet to inactive 
+// Put a projet to inactive
+/**
+ * @swagger
+ * /projects/{id}/toggle-active:
+ *   patch:
+ *     summary: Toggle project active status
+ *     tags: [Projects]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Project ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Project status toggled
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
 router.patch('/projects/:id/toggle-active', async (req, res) => {
   try {
     const { id } = req.params;
