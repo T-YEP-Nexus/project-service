@@ -191,6 +191,60 @@ router.get('/projects/creator/:id_creator', async (req, res) => {
   }
 });
 
+// Get projects by promotion ID
+router.get('/projects/promotion/:id_promotion', async (req, res) => {
+  try {
+    const { id_promotion } = req.params;
+
+    // Validate that promotion ID is provided
+    if (!id_promotion) {
+      return res.status(400).json({
+        success: false,
+        message: 'Promotion ID is required'
+      });
+    }
+
+    // Validate promotion ID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id_promotion)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid promotion ID format'
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('project')
+      .select('*')
+      .eq('id_promotion', id_promotion)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching projects by promotion:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to fetch projects',
+        error: error.message
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Projects retrieved successfully',
+      data: data,
+      count: data.length
+    });
+
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: err.message
+    });
+  }
+});
+
 // Get active projects only
 /**
  * @swagger
@@ -281,13 +335,13 @@ router.get('/projects/active/list', async (req, res) => {
  */
 router.post('/projects', async (req, res) => {
   try {
-    const { name, description, ressources, is_active, id_creator } = req.body;
+    const { name, description, ressources, is_active, id_creator, id_promotion } = req.body;
 
     // Validation
-    if (!name || !description || !ressources || !id_creator) {
+    if (!name || !description || !ressources || !id_creator || !id_promotion) {
       return res.status(400).json({
         success: false,
-        message: 'Name, description, ressources, and creator ID are required'
+        message: 'Name, description, ressources, creator ID, and promotion ID are required'
       });
     }
 
@@ -305,19 +359,20 @@ router.post('/projects', async (req, res) => {
       });
     }
 
-    // if (!Array.isArray(ressources) || ressources.length === 0) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'Ressources must be a non-empty array of PDF files'
-    //   });
-    // }
-
     // Validate creator ID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id_creator)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid creator ID format'
+      });
+    }
+
+    // Validate promotion ID format
+    if (!uuidRegex.test(id_promotion)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid promotion ID format'
       });
     }
 
@@ -350,7 +405,8 @@ router.post('/projects', async (req, res) => {
       description: description.trim(),
       ressources: ressources,
       is_active: is_active !== undefined ? is_active : true,
-      id_creator: id_creator
+      id_creator: id_creator,
+      id_promotion: id_promotion
     };
 
     const { data, error } = await supabase
@@ -430,10 +486,10 @@ router.post('/projects', async (req, res) => {
 router.patch('/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, ressources, is_active } = req.body;
+    const { name, description, ressources, is_active, id_promotion } = req.body;
 
     // Check if at least one field is provided
-    if (!name && !description && ressources === undefined && is_active === undefined) {
+    if (!name && !description && ressources === undefined && is_active === undefined && !id_promotion) {
       return res.status(400).json({
         success: false,
         message: 'At least one field must be provided for update'
@@ -568,6 +624,18 @@ router.patch('/projects/:id', async (req, res) => {
 
     if (is_active !== undefined) {
       updateData.is_active = is_active;
+    }
+
+    if (id_promotion !== undefined) {
+      // Validate promotion ID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(id_promotion)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid promotion ID format'
+        });
+      }
+      updateData.id_promotion = id_promotion;
     }
 
     const { data, error } = await supabase
