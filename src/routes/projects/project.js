@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../../config/supabaseClient.js');
+const supabase = require('../../../config/supabaseClient.js');
 
 /**
  * @swagger
  * tags:
- *   name: Projects
+ *   name: Project
  *   description: Project management endpoints
  */
 
@@ -15,7 +15,7 @@ const supabase = require('../../config/supabaseClient.js');
  * /projects:
  *   get:
  *     summary: Get all projects
- *     tags: [Projects]
+ *     tags: [Project]
  *     responses:
  *       200:
  *         description: Projects retrieved successfully
@@ -61,7 +61,7 @@ router.get('/projects', async (req, res) => {
  * /projects/{id}:
  *   get:
  *     summary: Get a project by ID
- *     tags: [Projects]
+ *     tags: [Project]
  *     parameters:
  *       - name: id
  *         in: path
@@ -127,170 +127,6 @@ router.get('/projects/:id', async (req, res) => {
   }
 });
 
-// Get projects by creator ID
-/**
- * @swagger
- * /projects/creator/{id_creator}:
- *   get:
- *     summary: Get projects by creator ID
- *     tags: [Projects]
- *     parameters:
- *       - name: id_creator
- *         in: path
- *         required: true
- *         description: Creator ID (UUID)
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Projects retrieved successfully
- *       500:
- *         description: Server error
- */
-router.get('/projects/creator/:id_creator', async (req, res) => {
-  try {
-    const { id_creator } = req.params;
-
-    // Validate that creator ID is provided
-    if (!id_creator) {
-      return res.status(400).json({
-        success: false,
-        message: 'Creator ID is required'
-      });
-    }
-
-    const { data, error } = await supabase
-      .from('project')
-      .select('*')
-      .eq('id_creator', id_creator)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching projects by creator:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to fetch projects',
-        error: error.message
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Projects retrieved successfully',
-      data: data,
-      count: data.length
-    });
-
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
-  }
-});
-
-// Get projects by promotion ID
-router.get('/projects/promotion/:id_promotion', async (req, res) => {
-  try {
-    const { id_promotion } = req.params;
-
-    // Validate that promotion ID is provided
-    if (!id_promotion) {
-      return res.status(400).json({
-        success: false,
-        message: 'Promotion ID is required'
-      });
-    }
-
-    // Validate promotion ID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id_promotion)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid promotion ID format'
-      });
-    }
-
-    const { data, error } = await supabase
-      .from('project')
-      .select('*')
-      .eq('id_promotion', id_promotion)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching projects by promotion:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to fetch projects',
-        error: error.message
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Projects retrieved successfully',
-      data: data,
-      count: data.length
-    });
-
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
-  }
-});
-
-// Get active projects only
-/**
- * @swagger
- * /projects/active/list:
- *   get:
- *     summary: Get all active projects
- *     tags: [Projects]
- *     responses:
- *       200:
- *         description: Active projects retrieved successfully
- *       500:
- *         description: Server error
- */
-router.get('/projects/active/list', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('project')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching active projects:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to fetch active projects',
-        error: error.message
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Active projects retrieved successfully',
-      data: data,
-      count: data.length
-    });
-
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
-  }
-});
 
 // Create a new project
 /**
@@ -298,7 +134,7 @@ router.get('/projects/active/list', async (req, res) => {
  * /projects:
  *   post:
  *     summary: Create a new project
- *     tags: [Projects]
+ *     tags: [Project]
  *     requestBody:
  *       required: true
  *       content:
@@ -446,7 +282,7 @@ router.post('/projects', async (req, res) => {
  * /projects/{id}:
  *   patch:
  *     summary: Update a project
- *     tags: [Projects]
+ *     tags: [Project]
  *     parameters:
  *       - name: id
  *         in: path
@@ -676,7 +512,7 @@ router.patch('/projects/:id', async (req, res) => {
  * /projects/{id}:
  *   delete:
  *     summary: Delete a project
- *     tags: [Projects]
+ *     tags: [Project]
  *     parameters:
  *       - name: id
  *         in: path
@@ -751,414 +587,7 @@ router.delete('/projects/:id', async (req, res) => {
   }
 });
 
-// Get project resources (PDF files)
-/**
- * @swagger
- * /projects/{id}/resources:
- *   get:
- *     summary: Get project resources
- *     tags: [Projects]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Project ID
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Project resources retrieved successfully
- *       404:
- *         description: Project not found
- *       500:
- *         description: Server error
- */
-router.get('/projects/:id/resources', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const { data, error } = await supabase
-      .from('project')
-      .select('ressources, name')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return res.status(404).json({
-          success: false,
-          message: 'Project not found'
-        });
-      }
-
-      console.error('Error fetching project resources:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to fetch project resources',
-        error: error.message
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Project resources retrieved successfully',
-      data: {
-        project_name: data.name,
-        resources: data.ressources || [],
-        resources_count: data.ressources ? data.ressources.length : 0
-      }
-    });
-
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
-  }
-});
-
-// Add a resource to a project
-/**
- * @swagger
- * /projects/{id}/resources:
- *   post:
- *     summary: Add a resource to a project
- *     tags: [Projects]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Project ID
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - filename
- *               - url
- *             properties:
- *               filename:
- *                 type: string
- *               url:
- *                 type: string
- *               description:
- *                 type: string
- *     responses:
- *       201:
- *         description: Resource added successfully
- *       400:
- *         description: Validation error
- *       409:
- *         description: Resource already exists
- *       500:
- *         description: Server error
- */
-router.post('/projects/:id/resources', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { filename, url, description } = req.body;
-
-    // Validate resource data
-    if (!filename || !url) {
-      return res.status(400).json({
-        success: false,
-        message: 'Filename and URL are required'
-      });
-    }
-
-    if (!filename.toLowerCase().endsWith('.pdf')) {
-      return res.status(400).json({
-        success: false,
-        message: 'Only PDF files are allowed'
-      });
-    }
-
-    // Validate URL format
-    try {
-      new URL(url);
-    } catch (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid URL format'
-      });
-    }
-
-    // Get current project
-    const { data: currentProject, error: getCurrentError } = await supabase
-      .from('project')
-      .select('ressources')
-      .eq('id', id)
-      .single();
-
-    if (getCurrentError) {
-      if (getCurrentError.code === 'PGRST116') {
-        return res.status(404).json({
-          success: false,
-          message: 'Project not found'
-        });
-      }
-      console.error('Error fetching current project:', getCurrentError);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to fetch current project',
-        error: getCurrentError.message
-      });
-    }
-
-    const currentResources = currentProject.ressources || [];
-    
-    // Check if filename already exists
-    const existingResource = currentResources.find(r => r.filename === filename);
-    if (existingResource) {
-      return res.status(409).json({
-        success: false,
-        message: 'A resource with this filename already exists in this project'
-      });
-    }
-
-    // Add new resource
-    const newResource = {
-      filename: filename.trim(),
-      url: url.trim(),
-      description: description ? description.trim() : null,
-      uploaded_at: new Date().toISOString()
-    };
-
-    const updatedResources = [...currentResources, newResource];
-
-    const { data, error } = await supabase
-      .from('project')
-      .update({ ressources: updatedResources })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error adding resource:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to add resource',
-        error: error.message
-      });
-    }
-
-    res.status(201).json({
-      success: true,
-      message: 'Resource added successfully',
-      data: {
-        project: data,
-        added_resource: newResource
-      }
-    });
-
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
-  }
-});
-
-// Remove a resource from a project
-/**
- * @swagger
- * /projects/{id}/resources/{filename}:
- *   delete:
- *     summary: Remove a resource from a project
- *     tags: [Projects]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Project ID
- *         schema:
- *           type: string
- *       - name: filename
- *         in: path
- *         required: true
- *         description: PDF filename to remove
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Resource removed successfully
- *       404:
- *         description: Project or resource not found
- *       500:
- *         description: Server error
- */
-router.delete('/projects/:id/resources/:filename', async (req, res) => {
-  try {
-    const { id, filename } = req.params;
-
-    if (!filename) {
-      return res.status(400).json({
-        success: false,
-        message: 'Filename is required'
-      });
-    }
-
-    // Get current project
-    const { data: currentProject, error: getCurrentError } = await supabase
-      .from('project')
-      .select('ressources')
-      .eq('id', id)
-      .single();
-
-    if (getCurrentError) {
-      if (getCurrentError.code === 'PGRST116') {
-        return res.status(404).json({
-          success: false,
-          message: 'Project not found'
-        });
-      }
-      console.error('Error fetching current project:', getCurrentError);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to fetch current project',
-        error: getCurrentError.message
-      });
-    }
-
-    const currentResources = currentProject.ressources || [];
-    
-    // Find and remove the resource
-    const resourceIndex = currentResources.findIndex(r => r.filename === decodeURIComponent(filename));
-    if (resourceIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'Resource not found in this project'
-      });
-    }
-
-    const removedResource = currentResources[resourceIndex];
-    const updatedResources = currentResources.filter((_, index) => index !== resourceIndex);
-
-    const { data, error } = await supabase
-      .from('project')
-      .update({ ressources: updatedResources })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error removing resource:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to remove resource',
-        error: error.message
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Resource removed successfully',
-      data: {
-        project: data,
-        removed_resource: removedResource
-      }
-    });
-
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
-  }
-});
-
-// Put a projet to inactive
-/**
- * @swagger
- * /projects/{id}/toggle-active:
- *   patch:
- *     summary: Toggle project active status
- *     tags: [Projects]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: Project ID
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Project status toggled
- *       404:
- *         description: Project not found
- *       500:
- *         description: Server error
- */
-router.patch('/projects/:id/toggle-active', async (req, res) => {
-  try {
-    const { id } = req.params;
 
 
-    // Get current project status
-    const { data: currentProject, error: getCurrentError } = await supabase
-      .from('project')
-      .select('is_active')
-      .eq('id', id)
-      .single();
-
-    if (getCurrentError) {
-      if (getCurrentError.code === 'PGRST116') {
-        return res.status(404).json({
-          success: false,
-          message: 'Project not found'
-        });
-      }
-      console.error('Error fetching current project:', getCurrentError);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to fetch current project',
-        error: getCurrentError.message
-      });
-    }
-
-    // Toggle the active status
-    const newActiveStatus = !currentProject.is_active;
-
-    const { data, error } = await supabase
-      .from('project')
-      .update({ is_active: newActiveStatus })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error toggling project status:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to toggle project status',
-        error: error.message
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: `Project ${newActiveStatus ? 'activated' : 'deactivated'} successfully`,
-      data: data
-    });
-
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: err.message
-    });
-  }
-});
 
 module.exports = router;
