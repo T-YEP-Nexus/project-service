@@ -3,106 +3,158 @@ const request = require('supertest');
 const BASE_URL = 'http://localhost:3003';
 
 let testProjectStudentId = null;
+const testStudentId = 49;
+const testProjectId = 19;
 
-describe('Student project CRUD Routes (Integration)', () => {
-    describe('GET /project-students - Get all project students', () => {
-        it('should return all project students successfully', async () => {
-        const response = await request(BASE_URL).get('/project-students');
-        expect(response.status).toBe(200);
-        expect(response.body.success).toBe(true);
-        expect(Array.isArray(response.body.data)).toBe(true);
-        });
+describe('ProjectStudents Routes (Integration)', () => {
+  describe('GET /project-students', () => {
+    it('should return all project students', async () => {
+      const res = await request(BASE_URL).get('/project-students');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+  });
+
+  describe('POST /project-students', () => {
+    it('should create a project assignment successfully', async () => {
+      const newAssignment = {
+        id_student: testStudentId,
+        id_project: testProjectId,
+        due_date: '2025-08-31T08:14:26Z',
+        assigned_at: '2025-07-08T08:14:26Z',
+        advisor_comment: 'Initial comment',
+        score: [{"bool": false,"desc": "Créer votre premier commit sur le projet","name": "Premier Pas"},{"bool": false,"desc": "Concevoir et implémenter l'architecture principale du système","name": "Architecte"}],
+        max_score: 100
+      };
+      const res = await request(BASE_URL).post('/project-students').send(newAssignment);
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.id_student).toBe(testStudentId);
+
+      testProjectStudentId = res.body.data.id;
     });
 
-    describe('GET /project-students/:id - Get project-students by ID', () => {
-        const validID = 1;
-
-        it('should return student project by valid ID', async () => {
-        const response = await request(BASE_URL).get(`/project-students/${validID}`);
-        expect(response.status).toBe(200);
-        expect(response.body.success).toBe(true);
-        expect(response.body.data.id).toBe(validID);
-        });
-
-        it('should return 404 for non-existent project-students', async () => {
-        const response = await request(BASE_URL).get('/project-students/60000000000');
-        expect(response.status).toBe(404);
-        });
+    it('should return 409 if assignment already exists', async () => {
+      const duplicateAssignment = {
+        id_student: testStudentId,
+        id_project: testProjectId,
+      };
+      const res = await request(BASE_URL).post('/project-students').send(duplicateAssignment);
+      expect(res.status).toBe(409);
     });
 
-    describe('POST /project-students - Create new project student', () => {
-        it('should create student project successfully', async () => {
-            const newProjectStudent = {
-                id_student: '412c4eea-4872-49d1-985d-4168ae41377c',
-                id_project: 1,
-                due_date: '2025-08-31 08:14:26+00',
-                assigned_at: '2025-07-08 08:14:26+00',
-                advisor_comment: 'comment of an advisor',
-                score: 76,
-                max_score: 100
-            };
-            const response = await request(BASE_URL).post('/project-students').send(newProjectStudent);
-            expect(response.status).toBe(201);
-            expect(response.body.success).toBe(true);
-            expect(response.body.data.id_student).toBe(newProjectStudent.id_student);
+    it('should return 400 if required fields are missing', async () => {
+      const res = await request(BASE_URL).post('/project-students').send({
+        advisor_comment: 'Missing ids'
+      });
+      expect(res.status).toBe(400);
+    });
+  });
 
-            testProjectStudentId = response.body.data.id;
-        });
-
-        it('should return 409 for existing student project', async () => {
-            const response = await request(BASE_URL).post('/project-students').send({ 
-                id_student: '412c4eea-4872-49d1-985d-4168ae41377c',
-                id_project: 1,
-                due_date: '2025-08-31 08:14:26+00',
-                assigned_at: '2025-07-08 08:14:26+00',
-                advisor_comment: 'comment of an advisor',
-                score: 76,
-                max_score: 100
-            });
-            expect(response.status).toBe(409);
-        });
-
-        it('should return 400 for missing fields', async () => {
-            const response = await request(BASE_URL).post('/project-students').send({
-                advisor_comment: 'comment of an advisor',
-                score: 76,
-                max_score: 100
-            });
-            expect(response.status).toBe(400);
-        });
+  describe('GET /project-students/:id', () => {
+    it('should return project assignment by ID', async () => {
+      const res = await request(BASE_URL).get(`/project-students/${testProjectStudentId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.id).toBe(testProjectStudentId);
     });
 
-    describe('PATCH /project-students/:id - Update student project', () => {
-        it('should update the student project successfully', async () => {
-            expect(testProjectStudentId).toBeTruthy();
-            const response = await request(BASE_URL)
-                .patch(`/project-students/${testProjectStudentId}`)
-                .send({ 
-                    score: 86
-                });
-            expect(response.status).toBe(200);
-            expect(response.body.success).toBe(true);
-        });
+    it('should return 404 for non-existent ID', async () => {
+      const res = await request(BASE_URL).get('/project-students/999999');
+      expect(res.status).toBe(404);
+    });
+  });
 
-        it('should return 400 for no update fields', async () => {
-            const response = await request(BASE_URL)
-                .patch(`/project-students/${testProjectStudentId}`)
-                .send({});
-            expect(response.status).toBe(400);
-        });
+  describe('GET /project-students/student/:id_student', () => {
+    it('should return assignments for a student', async () => {
+      const res = await request(BASE_URL).get(`/project-students/student/${testStudentId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
+
+  describe('GET /project-students/project/:id_project', () => {
+    it('should return assignments for a project', async () => {
+      const res = await request(BASE_URL).get(`/project-students/project/${testProjectId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
+
+  describe('GET /project-students/due-soon/list', () => {
+    it('should return assignments due within the next 7 days', async () => {
+      const res = await request(BASE_URL).get('/project-students/due-soon/list');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+  });
+
+  describe('PATCH /project-students/:id', () => {
+    it('should update a project assignment successfully', async () => {
+      const res = await request(BASE_URL)
+        .patch(`/project-students/${testProjectStudentId}`)
+        .send({ advisor_comment: 'Updated comment' });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
     });
 
-    describe('DELETE /project-students/:id - Delete student project', () => {
-        it('should delete student project successfully', async () => {
-            expect(testProjectStudentId).toBeTruthy();
-            const response = await request(BASE_URL).delete(`/project-students/${testProjectStudentId}`);
-            expect(response.status).toBe(200);
-            expect(response.body.success).toBe(true);
+    it('should return 400 if no fields provided', async () => {
+      const res = await request(BASE_URL)
+        .patch(`/project-students/${testProjectStudentId}`)
+        .send({});
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('PATCH /project-students/:id/grade', () => {
+    it('should grade a project assignment successfully', async () => {
+        const expectedScore = [
+        {
+            bool: true,
+            desc: "Créer votre premier commit sur le projet",
+            name: "Premier Pas"
+        },
+        {
+            bool: true,
+            desc: "Concevoir et implémenter l'architecture principale du système",
+            name: "Architecte"
+        }
+        ];
+
+        const res = await request(BASE_URL)
+        .patch(`/project-students/${testProjectStudentId}/grade`)
+        .send({
+            score: expectedScore,
+            max_score: 100,
+            advisor_comment: 'Excellent work'
         });
 
-        it('should return 404 for already deleted student project', async () => {
-            const response = await request(BASE_URL).delete(`/project-students/${testProjectStudentId}`);
-            expect(response.status).toBe(404);
-        });
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.score).toStrictEqual(expectedScore); // ✅ deep equality
     });
+
+    it('should return 400 if neither score nor max_score is provided', async () => {
+        const res = await request(BASE_URL)
+        .patch(`/project-students/${testProjectStudentId}/grade`)
+        .send({});
+        expect(res.status).toBe(400);
+    });
+});
+
+
+  describe('DELETE /project-students/:id', () => {
+    it('should delete a project assignment successfully', async () => {
+      const res = await request(BASE_URL).delete(`/project-students/${testProjectStudentId}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should return 404 when deleting an already deleted assignment', async () => {
+      const res = await request(BASE_URL).delete(`/project-students/${testProjectStudentId}`);
+      expect(res.status).toBe(404);
+    });
+  });
 });
