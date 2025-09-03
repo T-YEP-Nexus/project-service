@@ -376,8 +376,6 @@ router.post('/project-students', async (req, res) => {
       });
     }
 
-    
-
     // Validate dates if provided
     if (due_date && isNaN(Date.parse(due_date))) {
       return res.status(400).json({
@@ -392,9 +390,6 @@ router.post('/project-students', async (req, res) => {
         message: 'Invalid assigned date format'
       });
     }
-
-
-
 
     // Check if assignment already exists for this student-project combination
     const { data: existingAssignment, error: checkError } = await supabase
@@ -759,8 +754,6 @@ router.patch('/project-students/:id/grade', async (req, res) => {
         error: getCurrentError.message
       });
     }
-
-    
 
     const updateData = {};
     if (score !== undefined) updateData.score = score;
