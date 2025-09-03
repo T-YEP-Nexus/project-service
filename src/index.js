@@ -11,11 +11,21 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const projectRoutes = require('./routes/project.js');
-const projectStudentRoutes = require('./routes/project-student.js');
+const projectRoutes = require('./routes/projects/project.js');
+const projectRessourcesRoutes = require('./routes/projects/ressource/ressource.js');
+const projectMiscRoutes = require('./routes/projects/misc/misc.js');
+
+const projectStudentRoutes = require('./routes/projects-students/project-student.js');
+const projectStudentMiscRoutes = require('./routes/projects-students/misc/misc.js');
+
 
 app.use('', projectRoutes);
+app.use('', projectRessourcesRoutes);
+app.use('', projectMiscRoutes);
+
 app.use('', projectStudentRoutes);
+app.use('', projectStudentMiscRoutes);
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
