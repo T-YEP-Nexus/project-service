@@ -376,14 +376,7 @@ router.post('/project-students', async (req, res) => {
       });
     }
 
-    // Validate UUID formats
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id_student)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid student ID format'
-      });
-    }
+    
 
     // Validate dates if provided
     if (due_date && isNaN(Date.parse(due_date))) {
@@ -400,27 +393,8 @@ router.post('/project-students', async (req, res) => {
       });
     }
 
-    // Validate scores if provided
-    if (score !== undefined && (typeof score !== 'number' || score < 0)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Score must be a non-negative number'
-      });
-    }
 
-    if (max_score !== undefined && (typeof max_score !== 'number' || max_score <= 0)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Max score must be a positive number'
-      });
-    }
 
-    if (score !== undefined && max_score !== undefined && score > max_score) {
-      return res.status(400).json({
-        success: false,
-        message: 'Score cannot be greater than max score'
-      });
-    }
 
     // Check if assignment already exists for this student-project combination
     const { data: existingAssignment, error: checkError } = await supabase
@@ -601,36 +575,6 @@ router.patch('/project-students/:id', async (req, res) => {
       updateData.advisor_comment = advisor_comment ? advisor_comment.trim() : null;
     }
 
-    if (score !== undefined) {
-      if (score !== null && (typeof score !== 'number' || score < 0)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Score must be a non-negative number'
-        });
-      }
-      updateData.score = score;
-    }
-
-    if (max_score !== undefined) {
-      if (max_score !== null && (typeof max_score !== 'number' || max_score <= 0)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Max score must be a positive number'
-        });
-      }
-      updateData.max_score = max_score;
-    }
-
-    // Validate score against max_score
-    const finalScore = score !== undefined ? score : currentAssignment.score;
-    const finalMaxScore = max_score !== undefined ? max_score : currentAssignment.max_score;
-    
-    if (finalScore !== null && finalMaxScore !== null && finalScore > finalMaxScore) {
-      return res.status(400).json({
-        success: false,
-        message: 'Score cannot be greater than max score'
-      });
-    }
 
     const { data, error } = await supabase
       .from('project_student')
@@ -794,20 +738,6 @@ router.patch('/project-students/:id/grade', async (req, res) => {
       });
     }
 
-    if (score !== undefined && (typeof score !== 'number' || score < 0)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Score must be a non-negative number'
-      });
-    }
-
-    if (max_score !== undefined && (typeof max_score !== 'number' || max_score <= 0)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Max score must be a positive number'
-      });
-    }
-
     // Check if assignment exists
     const { data: currentAssignment, error: getCurrentError } = await supabase
       .from('project_student')
@@ -830,16 +760,7 @@ router.patch('/project-students/:id/grade', async (req, res) => {
       });
     }
 
-    // Validate score against max_score
-    const finalScore = score !== undefined ? score : currentAssignment.score;
-    const finalMaxScore = max_score !== undefined ? max_score : currentAssignment.max_score;
     
-    if (finalScore !== null && finalMaxScore !== null && finalScore > finalMaxScore) {
-      return res.status(400).json({
-        success: false,
-        message: 'Score cannot be greater than max score'
-      });
-    }
 
     const updateData = {};
     if (score !== undefined) updateData.score = score;
