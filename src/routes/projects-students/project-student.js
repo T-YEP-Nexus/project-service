@@ -292,7 +292,9 @@ router.post('/project-students', async (req, res) => {
  *               advisor_comment:
  *                 type: string
  *               score:
- *                 type: number
+ *                 type: array
+ *                 items:
+ *                   type: object
  *               max_score:
  *                 type: number
  *     responses:
@@ -377,6 +379,25 @@ router.patch('/project-students/:id', async (req, res) => {
       updateData.advisor_comment = advisor_comment ? advisor_comment.trim() : null;
     }
 
+    if (score !== undefined) {
+      if (score !== null && !Array.isArray(score)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Score must be an array (JSONB)'
+        });
+      }
+      updateData.score = score;
+    }
+
+    if (max_score !== undefined) {
+      if (max_score !== null && typeof max_score !== 'number') {
+        return res.status(400).json({
+          success: false,
+          message: 'max_score must be a number'
+        });
+      }
+      updateData.max_score = max_score;
+    }
 
     const { data, error } = await supabase
       .from('project_student')
@@ -409,6 +430,7 @@ router.patch('/project-students/:id', async (req, res) => {
     });
   }
 });
+
 
 // Delete a project assignment
 /**
