@@ -1,6 +1,34 @@
 const request = require('supertest');
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
-const BASE_URL = 'http://localhost:3003';
+// Import the app setup
+const auth = require('../src/middleware/auth');
+const projectRoutes = require('../src/routes/projects/project.js');
+const projectMiscRoutes = require('../src/routes/projects/misc/misc.js');
+const projectResourceRoutes = require('../src/routes/projects/ressource/ressource.js');
+
+// Create test app
+const app = express();
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(cookieParser());
+
+app.use(auth);
+
+app.use('', projectRoutes);
+app.use('', projectMiscRoutes);
+app.use('', projectResourceRoutes);
+
+// Use the app for testing instead of external URL
+const BASE_URL = app;
 
 let testProjectId = null;
 let testCreatorId = 'd73f23af-712a-46cb-8724-7ad47639fb6a';
